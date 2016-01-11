@@ -1,0 +1,30 @@
+postIt:
+  path: /postits
+  methods: [GET]
+  defaults:
+    _controller: 'PostItBundle:PostIt:list'
+
+postIt_show:
+  path: /postit/{id}
+  methods: [GET]
+  defaults:
+    _controller: 'PostItBundle:PostIt:show'
+
+postIt_create:
+  path: /postit
+  methods: [POST]
+  defaults:
+    _controller: 'PostItBundle:PostIt:create'
+
+postIt_delete:
+  path: /postit/{id}
+  methods: [DELETE]
+  defaults:
+    _controller: 'PostItBundle:PostIt:delete'
+
+postIt_put:
+  path: /postit/{id}
+  methods: [PATCH,PUT]
+  defaults:
+    _controller: 'PostItBundle:PostIt:edit'
+

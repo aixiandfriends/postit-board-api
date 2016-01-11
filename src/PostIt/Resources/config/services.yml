@@ -1,0 +1,7 @@
+services:
+    postit.mongodb_client.factory:
+        class: PostIt\Factory\MongoDBClientFactory
+        arguments: [%database_name%, %postit_collection%]
+    postit.mongodb_client:
+        class: Postit\Service\MongoDBClient
+        factory: ['@postit.mongodb_client.factory', create]
