@@ -2,7 +2,9 @@
 
 namespace PostIt\Controller;
 
+use PostIt\Form\Type\PostItType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,11 +52,8 @@ class PostItController extends Controller
 
     /**
      * @ApiDoc(
-     *     resource=true,
      *     description="Create a new Post-It",
-     *     requirements={
-     *         {"name"="message", "dataType"="string","required"="true","description"="Content of new PostIt"}
-     *     }
+     *     input="PostIt\Form\Type\PostItType"
      * )
      *
      * @param Request $request
@@ -62,11 +61,16 @@ class PostItController extends Controller
      */
     public function createAction(Request $request)
     {
-        $content = $request->request->all();
-        $return = $this->get('postit.mongodb_client')->insert($content);
+        $form = $this->createForm( PostItType::class );
+        $form->handleRequest($request);
+        if ($form->isValid()) {
 
-        if ($return) {
-            return new JsonResponse($content, Response::HTTP_CREATED);
+            $content = $form->getData();
+            $return = $this->get('postit.mongodb_client')->insert($content);
+
+            if ($return) {
+                return new JsonResponse($content, Response::HTTP_CREATED);
+            }
         }
 
         return new JsonResponse( ['message' => 'Unable to insert new record'], Response::HTTP_BAD_REQUEST);
@@ -98,9 +102,7 @@ class PostItController extends Controller
      * @ApiDoc(
      *     resource=true,
      *     description="Update a Post-It",
-     *     requirements={
-     *         {"name"="id", "dataType"="string","required"="true","description"="PostIt id"}
-     *     }
+     *     input="PostIt\Form\Type\PostItType"
      * )
      * @param $id
      * @param Request $request
@@ -109,14 +111,23 @@ class PostItController extends Controller
     public function editAction($id, Request $request)
     {
         try {
-            $content = $request->request->all();
-            $return = $this->get('postit.mongodb_client')->update($id, $content);
-
-            if ($return) {
-                return new JsonResponse($content, Response::HTTP_CREATED);
+            $content = $this->get('postit.mongodb_client')->show($id);
+            $form = $this->createForm( PostItType::class, $content, [
+                'method' => $request->getMethod()
+            ] );
+            $form->handleRequest($request);
+            $content = $form->getData();
+            if (!$form->isValid()) {
+                return new JsonResponse($content, Response::HTTP_NOT_MODIFIED);
             }
+
+            $return = $this->get('postit.mongodb_client')->update($id, $content);
+            if ($return) {
+                return new JsonResponse($content, Response::HTTP_OK);
+            }
+
         } catch (\MongoException $e) {
-            return new JsonResponse( ['message' => $e->getMessage()], $e->getCode());
+            return new JsonResponse( ['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 }
