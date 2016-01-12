@@ -11,7 +11,7 @@ postIt_show:
     _controller: 'PostItBundle:PostIt:show'
 
 postIt_create:
-  path: /postit
+  path: /postits
   methods: [POST]
   defaults:
     _controller: 'PostItBundle:PostIt:create'

@@ -6,10 +6,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 class PostItController extends Controller
 {
     /**
+     * @ApiDoc(
+     *     description="Return list of Post-Its"
+     * )
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function listAction()
@@ -20,15 +25,40 @@ class PostItController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Return one Post-It",
+     *     requirements={
+     *         {"name"="id", "dataType"="string","required"="true","description"="PostIt Id"}
+     *     }
+     * )
+     *
+     * @param $id
+     * @return JsonResponse
      */
-    public function showAction(Request $request)
+    public function showAction($id)
     {
+        try {
 
+            $content = $this->get('postit.mongodb_client')->show($id);
+            return new JsonResponse($content);
+
+        } catch (\MongoException $e) {
+            return new JsonResponse( ['message' => $e->getMessage()], $e->getCode());
+        }
     }
 
     /**
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Create a new Post-It",
+     *     requirements={
+     *         {"name"="message", "dataType"="string","required"="true","description"="Content of new PostIt"}
+     *     }
+     * )
+     *
      * @param Request $request
+     * @return JsonResponse
      */
     public function createAction(Request $request)
     {
@@ -43,18 +73,50 @@ class PostItController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Remove a Post-It",
+     *     requirements={
+     *         {"name"="id", "dataType"="string","required"="true","description"="PostIt id"}
+     *     }
+     * )
+     * @param $id
+     * @return JsonResponse
      */
-    public function deleteAction(Request $request)
+    public function deleteAction($id)
     {
-
+        try {
+            $content = $this->get('postit.mongodb_client')->show($id);
+            $this->get('postit.mongodb_client')->delete($id);
+            return new JsonResponse($content, Response::HTTP_OK);
+        } catch (\MongoException $e) {
+            return new JsonResponse( ['message' => $e->getMessage()], $e->getCode());
+        }
     }
 
     /**
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Update a Post-It",
+     *     requirements={
+     *         {"name"="id", "dataType"="string","required"="true","description"="PostIt id"}
+     *     }
+     * )
+     * @param $id
      * @param Request $request
+     * @return JsonResponse
      */
-    public function editAction(Request $request)
+    public function editAction($id, Request $request)
     {
+        try {
+            $content = $request->request->all();
+            $return = $this->get('postit.mongodb_client')->update($id, $content);
 
+            if ($return) {
+                return new JsonResponse($content, Response::HTTP_CREATED);
+            }
+        } catch (\MongoException $e) {
+            return new JsonResponse( ['message' => $e->getMessage()], $e->getCode());
+        }
     }
 }
