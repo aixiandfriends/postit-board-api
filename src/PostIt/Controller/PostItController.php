@@ -41,12 +41,11 @@ class PostItController extends Controller
     public function showAction($id)
     {
         try {
-
             $content = $this->get('postit.mongodb_client')->show($id);
-            return new JsonResponse($content);
+            return new JsonResponse($content, Response::HTTP_OK);
 
         } catch (\MongoException $e) {
-            return new JsonResponse( ['message' => $e->getMessage()], $e->getCode());
+            return new JsonResponse( ['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
     }
 
