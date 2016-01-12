@@ -21,6 +21,10 @@ class PostItController extends Controller
      */
     public function listAction()
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            return new JsonResponse('', Response::HTTP_FORBIDDEN);
+        }
+
         $content = iterator_to_array($this->get('postit.mongodb_client')->select());
 
         return new JsonResponse($content);
@@ -40,6 +44,10 @@ class PostItController extends Controller
      */
     public function showAction($id)
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            return new JsonResponse('', Response::HTTP_FORBIDDEN);
+        }
+
         try {
             $content = $this->get('postit.mongodb_client')->show($id);
             return new JsonResponse($content, Response::HTTP_OK);
@@ -60,6 +68,10 @@ class PostItController extends Controller
      */
     public function createAction(Request $request)
     {
+        if (!$this->isGranted('ROLE_FRONT')) {
+            return new JsonResponse('', Response::HTTP_FORBIDDEN);
+        }
+
         $form = $this->createForm( PostItType::class );
         $form->handleRequest($request);
 
@@ -88,6 +100,10 @@ class PostItController extends Controller
      */
     public function deleteAction($id)
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            return new JsonResponse('', Response::HTTP_FORBIDDEN);
+        }
+
         try {
             $content = $this->get('postit.mongodb_client')->show($id);
             $return = $this->get('postit.mongodb_client')->delete($id);
@@ -115,6 +131,10 @@ class PostItController extends Controller
      */
     public function editAction($id, Request $request)
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            return new JsonResponse('', Response::HTTP_FORBIDDEN);
+        }
+
         try {
             $content = $this->get('postit.mongodb_client')->show($id);
             $form = $this->createForm( PostItType::class, $content, [

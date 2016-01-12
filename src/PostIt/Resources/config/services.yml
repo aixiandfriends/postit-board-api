@@ -10,3 +10,9 @@ services:
         class: PostIt\EventListener\ResponseEventListener
         tags:
             - { name: kernel.event_listener, method: onKernelResponse, event: kernel.response }
+
+
+    postit.event_request_listener:
+        class: PostIt\EventListener\RequestEventListener
+        tags:
+            - { name: kernel.event_listener, method: onKernelException, event: kernel.exception }
