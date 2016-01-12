@@ -26,7 +26,7 @@ $kernel->loadClassCache();
 //Request::enableHttpMethodParameterOverride();
 $request = Request::createFromGlobals();
 
-if ('application/json' === $request->headers->get('Content-Type')) {
+if (false !== strpos($request->headers->get('Content-Type'), 'application/json')) {
     $data = json_decode($request->getContent(), true);
 
     if ($data) {
