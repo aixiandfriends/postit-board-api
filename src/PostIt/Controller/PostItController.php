@@ -63,8 +63,8 @@ class PostItController extends Controller
     {
         $form = $this->createForm( PostItType::class );
         $form->handleRequest($request);
-        if ($form->isValid()) {
 
+        if ($form->isValid()) {
             $content = $form->getData();
             $return = $this->get('postit.mongodb_client')->insert($content);
 
@@ -91,10 +91,16 @@ class PostItController extends Controller
     {
         try {
             $content = $this->get('postit.mongodb_client')->show($id);
-            $this->get('postit.mongodb_client')->delete($id);
-            return new JsonResponse($content, Response::HTTP_OK);
+            $return = $this->get('postit.mongodb_client')->delete($id);
+
+            if ($return['n'] > 0) {
+                return new JsonResponse($content, Response::HTTP_OK);
+            }
+
+            return new JsonResponse($content, Response::HTTP_NOT_MODIFIED);
+
         } catch (\MongoException $e) {
-            return new JsonResponse( ['message' => $e->getMessage()], $e->getCode());
+            return new JsonResponse( ['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
