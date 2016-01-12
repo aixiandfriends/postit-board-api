@@ -3,9 +3,10 @@ postIt:
   methods: [GET]
   defaults:
     _controller: 'PostItBundle:PostIt:list'
+    resource: PostIts
 
 postIt_show:
-  path: /postit/{id}
+  path: /postits/{id}
   methods: [GET]
   defaults:
     _controller: 'PostItBundle:PostIt:show'
@@ -17,13 +18,13 @@ postIt_create:
     _controller: 'PostItBundle:PostIt:create'
 
 postIt_delete:
-  path: /postit/{id}
+  path: /postits/{id}
   methods: [DELETE]
   defaults:
     _controller: 'PostItBundle:PostIt:delete'
 
 postIt_put:
-  path: /postit/{id}
+  path: /postits/{id}
   methods: [PATCH,PUT]
   defaults:
     _controller: 'PostItBundle:PostIt:edit'
